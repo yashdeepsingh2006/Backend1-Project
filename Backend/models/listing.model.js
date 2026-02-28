@@ -15,9 +15,15 @@ const listingSchema = new Schema({
         maxLength: [2000, "Description must not exceed 2000 characters"],
     },
     image: {
-        type: String,
-        default: "https://unsplash.com/photos/a-boat-travels-on-a-canal-in-front-of-buildings-t8OzFHgBjYk",
-        set: (v) => v === "" ? "https://unsplash.com/photos/a-boat-travels-on-a-canal-in-front-of-buildings-t8OzFHgBjYk" : v,
+        filename: { 
+            type: String,
+            default: "listingimage",
+        },
+        url: {
+            type: String,
+            default: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2",
+            set: (v) => v === "" ? "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2" : v,
+        }
     },
     price: {
         type: Number,

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostly</title>
+</head>
+
+<body>
+    <h3>Listing details: </h3>
+    <li>
+        <%= showListing.title %>
+    </li>
+    <li>
+        <%= showListing.description %>
+    </li>
+    <li>
+        &#8377; <%= showListing.price.toLocaleString("en-IN") %>
+    </li>
+    <li>
+        <%= showListing.location %>
+    </li>
+    <li>
+        <%= showListing.country %>
+    </li>
+    <br>
+    <a href="/listing/<%=showListing._id%>/edit">Edit this listing</a>
+    <br><br>
+    <form action="/listing/<%=showListing._id%>?_method=DELETE" method="POST">
+        <button>Delete this listing</button>
+    </form>
+</body>
+
+</html>

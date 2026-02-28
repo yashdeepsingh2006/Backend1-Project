@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostly</title>
+</head>
+
+<body>
+    <h1>Edit your listing</h1>
+    <form method="POST" action="/listing/<%=getListing._id%>?_method=PUT">
+        <input type="text" value="<%=getListing.title%>" name="getListing[title]" />
+        <br />
+        <br />
+        <textarea name="getListing[description]" id="description"><%=getListing.description%></textarea>
+        <input type="text" value="<%=getListing.image%>" name="getListing[image]" />
+        <br />
+        <br />
+        <input type="number" value="<%=getListing.price%>" name="getListing[price]" />
+        <br />
+        <br />
+        <input type="text" value="<%=getListing.country%>" name="getListing[country]" />
+        <br />
+        <br />
+        <input type="text" value="<%=getListing.location%>" name="getListing[location]" />
+        <br />
+        <br />
+        <button>Edit</button>
+    </form>
+</body>
+
+</html>
