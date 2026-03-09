@@ -25,7 +25,7 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get('/', (req, res) => {
-    res.send('Root route');
+    res.render('home/home.ejs');
 })
 
 app.use('/listing', listinRoutes);
