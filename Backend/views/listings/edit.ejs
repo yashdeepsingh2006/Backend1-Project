@@ -5,47 +5,60 @@
             <h2 class="form-title">Edit Your Listing</h2>
             <p class="form-subtitle">Update the details below to modify your property</p>
 
-            <form method="POST" action="/listing/<%=getListing._id%>?_method=PUT">
+            <form method="POST" action="/listing/<%=getListing._id%>?_method=PUT" class="needs-validation" novalidate>
 
                 <div class="mb-3">
                     <label for="title" class="form-label">Title</label>
                     <input type="text" id="title" value="<%=getListing.title%>" name="listing[title]"
-                        placeholder="Enter title" class="form-control">
+                        placeholder="Enter title" class="form-control" pattern=".*\S.*" required>
+                    <div class="valid-feedback">Title looks great!</div>
+                    <div class="invalid-feedback">Title is required and cannot be blank spaces.</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
                     <textarea id="description" name="listing[description]" placeholder="Enter description"
-                        class="form-control"><%=getListing.description%></textarea>
+                        class="form-control" pattern=".*\S.*" required><%=getListing.description%></textarea>
+                    <div class="valid-feedback">Description looks good!</div>
+                    <div class="invalid-feedback">Please provide a meaningful description.</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="image" class="form-label">Image URL</label>
-                    <input type="text" id="image" value="<%=getListing.image.url%>" name="listing[image][url]"
-                        placeholder="Enter image URL" class="form-control">
+                    <input type="url" id="image" value="<%=getListing.image.url%>" name="listing[image][url]"
+                        placeholder="Enter image URL (optional)" class="form-control">
+                    <div class="valid-feedback">Image URL is valid!</div>
+                    <div class="invalid-feedback">Please enter a valid image URL (e.g. https://example.com/image.jpg).
+                    </div>
                 </div>
 
                 <div class="row">
                     <div class="mb-3 col-md-4">
                         <label for="price" class="form-label">Price per Night</label>
-                        <div class="input-group">
+                        <div class="input-group has-validation">
                             <span class="input-group-text">₹</span>
                             <input type="number" id="price" value="<%=getListing.price%>" name="listing[price]"
-                                placeholder="0" class="form-control">
+                                placeholder="0" class="form-control" min="0" max="1000000" required>
+                            <div class="valid-feedback">Price looks good!</div>
+                            <div class="invalid-feedback">Price is required and must be between ₹0 and ₹10,00,000.</div>
                         </div>
                     </div>
 
                     <div class="mb-3 col-md-8">
                         <label for="country" class="form-label">Country</label>
                         <input type="text" id="country" value="<%=getListing.country%>" name="listing[country]"
-                            placeholder="Enter country" class="form-control">
+                            placeholder="Enter country" class="form-control" pattern=".*\S.*" required>
+                        <div class="valid-feedback">Country looks good!</div>
+                        <div class="invalid-feedback">Country name is required and cannot be blank.</div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="location" class="form-label">Location</label>
                     <input type="text" id="location" value="<%=getListing.location%>" name="listing[location]"
-                        placeholder="Enter location" class="form-control">
+                        placeholder="Enter location" class="form-control" pattern=".*\S.*" required>
+                    <div class="valid-feedback">Location looks good!</div>
+                    <div class="invalid-feedback">Location is required and cannot be blank.</div>
                 </div>
 
                 <button class="form-submit-btn">Save Changes</button>

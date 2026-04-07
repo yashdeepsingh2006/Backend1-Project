@@ -1,53 +1,67 @@
 <% layout('/layouts/boilerplate') %>
 
-<div class="form-page">
-    <div class="form-wrapper">
-        <h2 class="form-title">Create a New Listing</h2>
-        <p class="form-subtitle">Fill in the details below to add your property</p>
+    <div class="form-page">
+        <div class="form-wrapper">
+            <h2 class="form-title">Create a New Listing</h2>
+            <p class="form-subtitle">Fill in the details below to add your property</p>
 
-        <form action="/listing" method="POST">
+            <form action="/listing" method="POST" class="needs-validation" novalidate>
 
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" id="title" name="listing[title]" placeholder="Enter title" class="form-control">
-            </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" id="title" name="listing[title]" placeholder="Enter title" class="form-control"
+                        pattern=".*\S.*" required>
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter a valid title (cannot be empty spaces).</div>
+                </div>
 
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea id="description" name="listing[description]" placeholder="Enter description"
-                    class="form-control"></textarea>
-            </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="listing[description]" placeholder="Enter description"
+                        class="form-control" pattern=".*\S.*" required></textarea>
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter a valid description (cannot be empty spaces).</div>
+                </div>
 
-            <div class="mb-3">
-                <label for="image" class="form-label">Image URL</label>
-                <input type="text" id="image" name="listing[image]" placeholder="Enter image URL"
-                    class="form-control">
-            </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image URL</label>
+                    <input type="url" id="image" name="listing[image]" placeholder="Enter image URL (optional)"
+                        class="form-control">
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter a valid URL (e.g. https://example.com/image.jpg).</div>
+                </div>
 
-            <div class="row">
-                <div class="mb-3 col-md-4">
-                    <label for="price" class="form-label">Price per Night</label>
-                    <div class="input-group">
-                        <span class="input-group-text">₹</span>
-                        <input type="number" id="price" name="listing[price]" placeholder="0" class="form-control">
+                <div class="row">
+                    <div class="mb-3 col-md-4">
+                        <label for="price" class="form-label">Price per Night</label>
+                        <div class="input-group has-validation">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" id="price" name="listing[price]" placeholder="0" class="form-control"
+                                min="0" max="1000000" required>
+                            <div class="valid-feedback">Looks good!</div>
+                            <div class="invalid-feedback">Please enter a valid price.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="form-label">Country</label>
+                        <input type="text" id="country" name="listing[country]" placeholder="Enter country"
+                            class="form-control" pattern=".*\S.*" required>
+                        <div class="valid-feedback">Looks good!</div>
+                        <div class="invalid-feedback">Please enter a valid country name.</div>
                     </div>
                 </div>
 
-                <div class="mb-3 col-md-8">
-                    <label for="country" class="form-label">Country</label>
-                    <input type="text" id="country" name="listing[country]" placeholder="Enter country"
-                        class="form-control">
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" id="location" name="listing[location]" placeholder="Enter location"
+                        class="form-control" pattern=".*\S.*" required>
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter a valid location.</div>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <input type="text" id="location" name="listing[location]" placeholder="Enter location"
-                    class="form-control">
-            </div>
+                <button class="form-submit-btn">Add Listing</button>
 
-            <button class="form-submit-btn">Add Listing</button>
-
-        </form>
+            </form>
+        </div>
     </div>
-</div>

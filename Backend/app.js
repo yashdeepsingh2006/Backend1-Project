@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import methodOverride from 'method-override';
 import ejsMate from 'ejs-mate';
-
+import ExpressError from './Middlewares/ExpressError.js';
 
 dotenv.config();
 
@@ -19,18 +19,29 @@ const __dirname = path.dirname(__filename);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.engine("ejs", ejsMate);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.engine('ejs', ejsMate);
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get('/', (req, res) => {
     res.render('home/home.ejs');
-})
+});
 
 app.use('/listing', listinRoutes);
 
+app.use((req, res, next) => {
+    next(new ExpressError(404, "Page Not Found"));
+});
+
+app.use((err, req, res, next) => {
+    let { statusCode = 500, message = "Something went wrong!" } = err;
+    res.status(statusCode).render('error.ejs', { statusCode, message });
+});
+
 const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
     console.log(`Listening at Port ${PORT}`);
-})
+});
