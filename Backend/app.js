@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 import methodOverride from 'method-override';
 import ejsMate from 'ejs-mate';
 import ExpressError from './Middlewares/ExpressError.js';
+import session from 'express-session';
+import flash from 'connect-flash';
+import { flashMiddleware } from './Middlewares/flash.middleware.js';
 
 dotenv.config();
 
@@ -24,6 +27,21 @@ app.engine("ejs", ejsMate);
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
+
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+    }
+};
+
+app.use(session(sessionConfig));
+app.use(flash());
+app.use(flashMiddleware);
 
 app.get('/', (req, res) => {
     res.render('home/home.ejs');

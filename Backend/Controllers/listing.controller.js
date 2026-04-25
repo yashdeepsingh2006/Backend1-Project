@@ -12,7 +12,8 @@ export const getAllListingsById = async (req, res, next) => {
     const showListing = await Listing.findById(id).populate('reviews');
 
     if (!showListing) {
-        return next(new ExpressError(404, "Listing not found!"));
+        req.flash("error", "Listing you are looking for does not exist!");
+        return res.redirect('/listing');
     }
 
     res.render("listings/show.ejs", { showListing });
@@ -30,6 +31,7 @@ export const postingNewListing = async (req, res, next) => {
     const newListing = new Listing(req.body.listing);
     await newListing.save();
 
+    req.flash("success", "New listing created successfully!");
     res.redirect('/listing');
 }
 
@@ -61,6 +63,7 @@ export const putTheChanges = async (req, res, next) => {
         return next(new ExpressError(404, "Listing not found!"));
     }
 
+    req.flash("success", "Listing updated successfully!");
     res.redirect(`/listing/${id}`);
 }
 
@@ -73,6 +76,7 @@ export const deleteTheListing = async (req, res, next) => {
         return next(new ExpressError(404, "Listing not found!"));
     }
 
+    req.flash("success", "Listing deleted successfully!");
     res.redirect('/listing');
 }
 
@@ -85,6 +89,7 @@ export const savingReview = async (req, res, next) => {
     await newReview.save();
     await listing.save();
 
+    req.flash("success", "Review added successfully!");
     res.redirect(`/listing/${listing._id}`);
 }
 
@@ -94,5 +99,6 @@ export const deletingReview = async (req, res, next) => {
     await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Review.findByIdAndDelete(reviewId);
 
+    req.flash("success", "Review deleted successfully!");
     res.redirect(`/listing/${id}`);
 }
