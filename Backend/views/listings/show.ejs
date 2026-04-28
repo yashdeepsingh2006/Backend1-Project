@@ -30,6 +30,12 @@
                         <%=showListing.location%>, <%=showListing.country%>
                     </div>
 
+                    <% if(currentUser && !(showListing.owner && showListing.owner.equals(currentUser._id))) { %>
+                        <div class="booking-action">
+                            <a href="/booking/<%=showListing._id%>/bookings/new" class="listing-btn">Book Now</a>
+                        </div>
+                    <% } %>
+
                     <% if(currentUser && showListing.owner && showListing.owner.equals(currentUser._id)) { %>
                         <div class="show-actions">
                             <a href="/listing/<%=showListing._id%>/edit" class="btn-edit">Edit Listing</a>

@@ -28,6 +28,54 @@
             <div class="profile-divider"></div>
 
             <div class="profile-section">
+                <h4 class="profile-section-title">My Bookings</h4>
+                <% if(bookings.length> 0) { %>
+                    <div class="profile-bookings">
+                        <% for(let booking of bookings) { %>
+                            <div class="profile-booking-card">
+                                <div class="profile-booking-main">
+                                    <div>
+                                        <p class="profile-booking-title">
+                                            <%= booking.listing ? booking.listing.title : 'Listing no longer available' %>
+                                        </p>
+                                        <p class="profile-booking-meta">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <%= booking.checkIn.toDateString() %> - <%= booking.checkOut.toDateString() %>
+                                        </p>
+                                        <p class="profile-booking-meta">
+                                            <i class="fa-solid fa-users"></i>
+                                            <%= booking.guests %> guest(s)
+                                        </p>
+                                    </div>
+                                    <div class="profile-booking-price">
+                                        ₹ <%= booking.totalPrice.toLocaleString("en-IN") %>
+                                    </div>
+                                </div>
+
+                                <div class="profile-booking-footer">
+                                    <span class="booking-status booking-status-<%= booking.status %>">
+                                        <%= booking.status %>
+                                    </span>
+                                    <% if(booking.listing) { %>
+                                        <a href="/listing/<%= booking.listing._id %>" class="profile-booking-link">View listing</a>
+                                    <% } %>
+                                    <% if(booking.status !== 'cancelled' && booking.status !== 'completed') { %>
+                                        <form action="/booking/bookings/<%= booking._id %>/cancel?_method=PUT" method="POST">
+                                            <button type="submit" class="profile-booking-cancel-btn">Cancel</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <p class="profile-empty">You have no bookings yet. Browse listings to reserve your next stay.</p>
+                <% } %>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <div class="profile-section">
                 <h4 class="profile-section-title">Recently Viewed Listings</h4>
                 <% if(recentlyViewed.length> 0) { %>
                     <div class="profile-listings">

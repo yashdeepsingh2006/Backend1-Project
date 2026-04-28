@@ -14,6 +14,7 @@ import flash from 'connect-flash';
 import { flashMiddleware } from './Middlewares/flash.middleware.js';
 import passport from 'passport';
 import User from './models/user.model.js';
+import bookingRoutes from './Routes/booking.route.js';
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.get('/', (req, res) => {
 
 app.use('/', userRoutes);
 app.use('/listing', listinRoutes);
+app.use('/booking', bookingRoutes);
 
 app.use((req, res, next) => {
     next(new ExpressError(404, "Page Not Found"));

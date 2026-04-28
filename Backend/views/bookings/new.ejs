@@ -1,0 +1,42 @@
+<% layout('/layouts/boilerplate') %>
+
+<div class="form-page">
+    <div class="form-wrapper">
+        <h2 class="form-title">Reserve: <%= listing.title %></h2>
+        <p class="form-subtitle">₹ <%= listing.price.toLocaleString('en-IN') %> / night — <%= listing.location %>, <%= listing.country %></p>
+
+        <div class="booking-section" data-night-price="<%= listing.price %>">
+            <form action="/booking/<%= listing._id %>/bookings" method="POST" class="booking-form needs-validation" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="checkIn" class="form-label">Check-in</label>
+                        <input type="date" id="checkIn" name="booking[checkIn]" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="checkOut" class="form-label">Check-out</label>
+                        <input type="date" id="checkOut" name="booking[checkOut]" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="guests" class="form-label">Guests</label>
+                        <input type="number" id="guests" name="booking[guests]" class="form-control" min="1" max="20" value="1" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estimated total</label>
+                        <div class="booking-total-box">₹ <span id="bookingTotal">0</span></div>
+                        <input type="hidden" id="totalPrice" name="booking[totalPrice]" value="0">
+                    </div>
+                    <div class="col-12">
+                        <label for="specialRequests" class="form-label">Special requests</label>
+                        <textarea id="specialRequests" name="booking[specialRequests]" class="form-control booking-textarea" placeholder="Anything we should know before your stay?"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+                    <button type="submit" class="form-submit-btn booking-submit-btn">Reserve now</button>
+                    <a href="/listing/<%= listing._id %>" class="btn-delete" style="align-self:center;">Back</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

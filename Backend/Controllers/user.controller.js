@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import Listing from '../models/listing.model.js';
+import Booking from '../models/booking.model.js';
 import passport from 'passport';
 
 export const getRegisterForm = async (req, res) => {
@@ -52,6 +53,10 @@ export const getProfile = async (req, res, next) => {
         '_id': { $in: recentlyViewedIds }
     });
 
+    const bookings = await Booking.find({ user: req.user._id })
+        .populate('listing')
+        .sort({ createdAt: -1 });
+
     const orderedListings = recentlyViewedIds
         .map(id => recentlyViewed.find(l => l._id.toString() === id))
         .filter(Boolean);
@@ -59,5 +64,6 @@ export const getProfile = async (req, res, next) => {
     res.render('users/profile.ejs', {
         user: req.user,
         recentlyViewed: orderedListings,
+        bookings,
     });
 };

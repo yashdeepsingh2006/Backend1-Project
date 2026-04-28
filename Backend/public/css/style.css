@@ -320,6 +320,182 @@ body {
     margin-top: 0.75rem;
 }
 
+.booking-section {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid #ebebeb;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #fff8f8 100%);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
+}
+
+.booking-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #222222;
+    margin-bottom: 0.2rem;
+}
+
+.booking-section-subtitle {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 1rem;
+}
+
+.booking-form .form-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #444;
+    margin-bottom: 0.35rem;
+}
+
+.booking-form .form-control {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.95rem;
+    color: #222;
+}
+
+.booking-form .form-control:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.12);
+    outline: none;
+}
+
+.booking-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.booking-total-box {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    font-weight: 700;
+    color: #222;
+}
+
+.booking-submit-btn {
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+.profile-bookings {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.profile-booking-card {
+    padding: 1rem;
+    border: 1px solid #ebebeb;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+.profile-booking-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.profile-booking-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 0.3rem;
+}
+
+.profile-booking-meta {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.profile-booking-meta i {
+    color: #fe424d;
+    margin-right: 0.35rem;
+}
+
+.profile-booking-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+    white-space: nowrap;
+}
+
+.profile-booking-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+}
+
+.booking-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.booking-status-pending {
+    background: #fff4d6;
+    color: #8a6100;
+}
+
+.booking-status-confirmed {
+    background: #e7f6ea;
+    color: #1f7a35;
+}
+
+.booking-status-cancelled {
+    background: #fde8e8;
+    color: #b42318;
+}
+
+.booking-status-completed {
+    background: #e8f0fe;
+    color: #1d4ed8;
+}
+
+.profile-booking-link {
+    font-size: 0.9rem;
+    color: #fe424d;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-booking-link:hover {
+    color: #e0333e;
+    text-decoration: underline;
+}
+
+.profile-booking-cancel-btn {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #222;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.profile-booking-cancel-btn:hover {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
 .btn-edit {
     padding: 0.5rem 1.25rem;
     background-color: #fe424d;
