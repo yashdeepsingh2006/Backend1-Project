@@ -15,6 +15,9 @@ import { flashMiddleware } from './Middlewares/flash.middleware.js';
 import passport from 'passport';
 import User from './models/user.model.js';
 import bookingRoutes from './Routes/booking.route.js';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import MongoStore from 'connect-mongo';
 
 dotenv.config();
 
@@ -22,6 +25,8 @@ const require = createRequire(import.meta.url);
 const LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 
 connectDB();
 
@@ -40,6 +45,10 @@ const sessionConfig = {
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL,
+        touchAfter: 24 * 60 * 60,
+    }),
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -54,9 +63,27 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-app.use(flashMiddleware);  // ✅ must be after passport and before ALL routes
+app.use(flashMiddleware);
 
-// ✅ routes come after all middleware
+const listingViewers = {};
+
+io.on('connection', (socket) => {
+    socket.on('joinListing', (listingId) => {
+        socket.join(listingId);
+        socket.currentListing = listingId;
+        listingViewers[listingId] = (listingViewers[listingId] || 0) + 1;
+        io.to(listingId).emit('viewerCount', listingViewers[listingId]);
+    });
+
+    socket.on('disconnect', () => {
+        const listingId = socket.currentListing;
+        if (listingId && listingViewers[listingId]) {
+            listingViewers[listingId] = Math.max(0, listingViewers[listingId] - 1);
+            io.to(listingId).emit('viewerCount', listingViewers[listingId]);
+        }
+    });
+});
+
 app.get('/', (req, res) => {
     res.render('home/home.ejs');
 });
@@ -76,6 +103,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Listening at Port ${PORT}`);
 });
