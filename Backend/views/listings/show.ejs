@@ -186,6 +186,13 @@
         justify-content: center;
         font-weight: bold;
         color: #495057;
+        overflow: hidden;
+    }
+    .review-author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
     .badge-status {
         padding: 6px 12px;
@@ -349,7 +356,9 @@
                             <div class="review-card">
                                 <div class="review-author">
                                     <div class="review-author-avatar shadow-sm">
-                                        <% if(review.author) { %>
+                                        <% if(review.author && review.author.profileImage && review.author.profileImage.url) { %>
+                                            <img src="<%= review.author.profileImage.url %>" alt="<%= review.author.firstName %> profile picture">
+                                        <% } else if(review.author) { %>
                                             <%= review.author.firstName.charAt(0).toUpperCase() %>
                                         <% } else { %>
                                             <i class="fa-solid fa-user"></i>

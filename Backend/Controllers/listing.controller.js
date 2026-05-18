@@ -61,7 +61,7 @@ export const getAllListingsById = async (req, res, next) => {
             path: 'reviews',
             populate: {
                 path: 'author',
-                select: 'firstName lastName username',
+                select: 'firstName lastName username profileImage',
             }
         })
         .populate('owner');

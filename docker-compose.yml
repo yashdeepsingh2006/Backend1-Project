@@ -33,6 +33,18 @@ services:
       - postgres
     restart: unless-stopped
 
+  prisma-studio:
+    build:
+      context: "./Payment gateway"
+    ports:
+      - "5555:5555"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/payment_gateway?schema=public"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    command: ["sh", "-c", "npx prisma db push && npx prisma studio --browser=none --hostname 0.0.0.0 --port 5555"]
+
   backend:
     build:
       context: "./Backend"
@@ -52,6 +64,7 @@ services:
     depends_on:
       - mongodb
       - payment-gateway
+      - prisma-studio
     restart: unless-stopped
 
 volumes:
