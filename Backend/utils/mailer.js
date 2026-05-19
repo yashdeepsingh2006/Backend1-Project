@@ -1,8 +1,14 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import sgMail from '@sendgrid/mail';
 dotenv.config();
 
-const transporter = process.env.GMAIL_USER && process.env.GMAIL_PASS ? nodemailer.createTransport({
+// Configure SendGrid if API key provided
+if (process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+const gmailTransporter = process.env.GMAIL_USER && process.env.GMAIL_PASS ? nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.GMAIL_USER,
@@ -13,29 +19,49 @@ const transporter = process.env.GMAIL_USER && process.env.GMAIL_PASS ? nodemaile
     socketTimeout: 10_000,
 }) : null;
 
+const buildHtml = (firstName, otp) => `
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem; border: 1px solid #ebebeb; border-radius: 12px;">
+        <h2 style="color: #222; margin-bottom: 0.5rem;">Welcome to Hotspot, ${firstName}!</h2>
+        <p style="color: #555; margin-bottom: 1.5rem;">Use the OTP below to verify your email. It expires in <strong>10 minutes</strong>.</p>
+        <div style="background-color: #fff5f5; border: 1px solid #ffd5d5; border-radius: 8px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;">
+            <p style="font-size: 2rem; font-weight: 700; color: #fe424d; letter-spacing: 0.5rem; margin: 0;">${otp}</p>
+        </div>
+        <p style="color: #888; font-size: 0.85rem;">If you did not create an account, please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #ebebeb; margin: 1.5rem 0;">
+        <p style="color: #888; font-size: 0.8rem; margin: 0;">© Hotspot Private Limited</p>
+    </div>
+`;
+
 export const sendOTPEmail = async (email, otp, firstName) => {
-    if (!transporter) {
+    // Prefer SendGrid (HTTPS API) when API key is available — more reliable on PaaS
+    if (process.env.SENDGRID_API_KEY) {
+        try {
+            const msg = {
+                to: email,
+                from: process.env.SENDGRID_FROM || process.env.GMAIL_USER || 'noreply@hotspot.example',
+                subject: 'Verify your Hotspot account',
+                html: buildHtml(firstName, otp),
+            };
+            await sgMail.send(msg);
+            return true;
+        } catch (err) {
+            console.error(`[OTP] SendGrid failed for ${email}:`, err);
+            console.warn(`[OTP] Fallback OTP for ${email}: ${otp}`);
+            // fall through to try Gmail transporter if configured
+        }
+    }
+
+    if (!gmailTransporter) {
         console.warn(`[OTP] SMTP not configured. OTP for ${email}: ${otp}`);
         return false;
     }
 
     try {
-        await transporter.sendMail({
+        await gmailTransporter.sendMail({
             from: `"Hotspot" <${process.env.GMAIL_USER}>`,
             to: email,
-            subject: "Verify your Hotspot account",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem; border: 1px solid #ebebeb; border-radius: 12px;">
-                    <h2 style="color: #222; margin-bottom: 0.5rem;">Welcome to Hotspot, ${firstName}!</h2>
-                    <p style="color: #555; margin-bottom: 1.5rem;">Use the OTP below to verify your email. It expires in <strong>10 minutes</strong>.</p>
-                    <div style="background-color: #fff5f5; border: 1px solid #ffd5d5; border-radius: 8px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;">
-                        <p style="font-size: 2rem; font-weight: 700; color: #fe424d; letter-spacing: 0.5rem; margin: 0;">${otp}</p>
-                    </div>
-                    <p style="color: #888; font-size: 0.85rem;">If you did not create an account, please ignore this email.</p>
-                    <hr style="border: none; border-top: 1px solid #ebebeb; margin: 1.5rem 0;">
-                    <p style="color: #888; font-size: 0.8rem; margin: 0;">© Hotspot Private Limited</p>
-                </div>
-            `
+            subject: 'Verify your Hotspot account',
+            html: buildHtml(firstName, otp),
         });
 
         return true;
