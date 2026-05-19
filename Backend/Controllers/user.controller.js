@@ -14,9 +14,11 @@ export const getRegisterForm = async (req, res) => {
 export const registerUser = async (req, res, next) => {
     try {
         const { username, email, firstName, lastName, password } = req.body.user;
+        console.log(`[register] incoming request for ${username} <${email}>`);
 
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
+            console.log(`[register] blocked duplicate user for ${username} <${email}>`);
             req.flash("error", existingUser.email === email ? "Email already registered!" : "Username already taken!");
             return res.redirect('/register');
         }
@@ -28,12 +30,16 @@ export const registerUser = async (req, res, next) => {
         req.session.otp = otp;
         req.session.otpExpiry = otpExpiry;
 
-        await sendOTPEmail(email, otp, firstName);
+        const emailSent = await sendOTPEmail(email, otp, firstName);
+        console.log(`[register] otp prepared for ${username} <${email}>; emailSent=${emailSent}`);
 
-        req.flash("success", `OTP sent to ${email}. Please verify your account.`);
+        req.flash("success", emailSent
+            ? `OTP sent to ${email}. Please verify your account.`
+            : `OTP could not be emailed right now. Check server logs for the OTP, then verify your account.`);
         res.redirect('/verify-otp');
 
     } catch (err) {
+        console.error('[register] failed:', err);
         req.flash("error", err.message);
         res.redirect('/register');
     }
@@ -50,8 +56,10 @@ export const getOTPForm = async (req, res) => {
 export const verifyOTP = async (req, res, next) => {
     try {
         const { otp } = req.body;
+        console.log('[verify-otp] attempt received');
 
         if (!req.session.pendingUser) {
+            console.warn('[verify-otp] no pending user in session');
             req.flash("error", "Session expired. Please register again.");
             return res.redirect('/register');
         }
@@ -65,6 +73,7 @@ export const verifyOTP = async (req, res, next) => {
         }
 
         if (otp !== req.session.otp) {
+            console.warn('[verify-otp] invalid otp submitted');
             req.flash("error", "Invalid OTP. Please try again.");
             return res.redirect('/verify-otp');
         }
@@ -73,6 +82,7 @@ export const verifyOTP = async (req, res, next) => {
 
         const newUser = new User({ username, email, firstName, lastName, isVerified: true });
         const registeredUser = await User.register(newUser, password);
+        console.log(`[verify-otp] user registered: ${registeredUser.username} <${registeredUser.email}>`);
 
         delete req.session.pendingUser;
         delete req.session.otp;
@@ -87,6 +97,7 @@ export const verifyOTP = async (req, res, next) => {
         });
 
     } catch (err) {
+        console.error('[verify-otp] failed:', err);
         req.flash("error", err.message);
         res.redirect('/verify-otp');
     }
@@ -103,12 +114,14 @@ export const resendOTP = async (req, res) => {
         req.session.otp = otp;
         req.session.otpExpiry = Date.now() + 10 * 60 * 1000;
 
-        await sendOTPEmail(req.session.pendingUser.email, otp, req.session.pendingUser.firstName);
+        const emailSent = await sendOTPEmail(req.session.pendingUser.email, otp, req.session.pendingUser.firstName);
+        console.log(`[resend-otp] emailSent=${emailSent} for ${req.session.pendingUser.username}`);
 
-        req.flash("success", "New OTP sent successfully!");
+        req.flash("success", emailSent ? "New OTP sent successfully!" : "OTP could not be emailed right now. Check server logs for the OTP.");
         res.redirect('/verify-otp');
 
     } catch (err) {
+        console.error('[resend-otp] failed:', err);
         req.flash("error", "Failed to resend OTP. Please try again.");
         res.redirect('/verify-otp');
     }

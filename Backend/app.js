@@ -26,7 +26,17 @@ const require = createRequire(import.meta.url);
 const LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
-app.use(cors());
+
+// when running behind a proxy (Render, Heroku, etc.) express must trust the proxy
+// so secure cookies and redirects work correctly
+app.set('trust proxy', 1);
+
+// enable CORS with credentials support so session cookies are sent from the client
+const corsOptions = {
+    origin: true, // reflect request origin
+    credentials: true,
+};
+app.use(cors(corsOptions));
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
@@ -70,6 +80,8 @@ const sessionConfig = {
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        // allow cross-site cookies in production (frontend hosted separately)
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 7,
     }
 };
