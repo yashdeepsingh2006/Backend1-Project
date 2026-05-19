@@ -7,6 +7,17 @@ const port = process.env.PORT || 7000;
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  const startedAt = Date.now();
+
+  res.on('finish', () => {
+    const durationMs = Date.now() - startedAt;
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms`);
+  });
+
+  next();
+});
+
 app.get('/', (req, res) => {
   return res.json({
     message: 'Welcome to the dummy payment gateway',
@@ -57,7 +68,10 @@ app.post('/payments', async (req, res) => {
 });
 
 app.use((error, req, res, next) => {
-  console.error(error);
+  console.error(`${req.method} ${req.originalUrl} -> 500: ${error.message || 'Internal server error'}`);
+  if (error?.stack) {
+    console.error(error.stack);
+  }
   return res.status(500).json({
     message: 'Internal server error',
   });

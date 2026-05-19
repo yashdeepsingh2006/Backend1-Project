@@ -37,6 +37,17 @@ const io = new Server(httpServer, {
 
 connectDB();
 
+app.use((req, res, next) => {
+    const startedAt = Date.now();
+
+    res.on('finish', () => {
+        const durationMs = Date.now() - startedAt;
+        console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${durationMs}ms`);
+    });
+
+    next();
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -105,6 +116,10 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something went wrong!" } = err;
+    console.error(`${req.method} ${req.originalUrl} -> ${statusCode}: ${message}`);
+    if (err?.stack) {
+        console.error(err.stack);
+    }
     res.status(statusCode).render('error.ejs', { statusCode, message });
 });
 

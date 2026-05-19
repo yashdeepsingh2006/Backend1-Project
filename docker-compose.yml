@@ -60,7 +60,7 @@ services:
       CLOUDINARY_API_SECRET: "-mvQPzjt732L_8xmcNVogIvcWLg"
       GMAIL_USER: "omkamboj09@gmail.com"
       GMAIL_PASS: "owsvdhebfqmcfayw"
-      PAYMENT_URL: "http://payment-gateway:7000/payments"
+      PAYMENT_URL: "https://backend1-project-2.onrender.com/payments"
     depends_on:
       - mongodb
       - payment-gateway
