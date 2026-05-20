@@ -2,10 +2,7 @@ import User from '../models/user.model.js';
 import Listing from '../models/listing.model.js';
 import Booking from '../models/booking.model.js';
 import passport from 'passport';
-import { sendOTPEmail } from '../utils/mailer.js';
 import { cloudinary } from '../utils/cloudinary.js';
-
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const getRegisterForm = async (req, res) => {
     res.render('users/register.ejs');
@@ -23,70 +20,9 @@ export const registerUser = async (req, res, next) => {
             return res.redirect('/register');
         }
 
-        const otp = generateOTP();
-        const otpExpiry = Date.now() + 10 * 60 * 1000;
-
-        req.session.pendingUser = { username, email, firstName, lastName, password };
-        req.session.otp = otp;
-        req.session.otpExpiry = otpExpiry;
-
-        const emailSent = await sendOTPEmail(email, otp, firstName);
-        console.log(`[register] otp prepared for ${username} <${email}>; emailSent=${emailSent}`);
-
-        req.flash("success", emailSent
-            ? `OTP sent to ${email}. Please verify your account.`
-            : `OTP could not be emailed right now. Check server logs for the OTP, then verify your account.`);
-        res.redirect('/verify-otp');
-
-    } catch (err) {
-        console.error('[register] failed:', err);
-        req.flash("error", err.message);
-        res.redirect('/register');
-    }
-};
-
-export const getOTPForm = async (req, res) => {
-    if (!req.session.pendingUser) {
-        req.flash("error", "Please register first.");
-        return res.redirect('/register');
-    }
-    res.render('users/verify-otp.ejs');
-};
-
-export const verifyOTP = async (req, res, next) => {
-    try {
-        const { otp } = req.body;
-        console.log('[verify-otp] attempt received');
-
-        if (!req.session.pendingUser) {
-            console.warn('[verify-otp] no pending user in session');
-            req.flash("error", "Session expired. Please register again.");
-            return res.redirect('/register');
-        }
-
-        if (Date.now() > req.session.otpExpiry) {
-            delete req.session.pendingUser;
-            delete req.session.otp;
-            delete req.session.otpExpiry;
-            req.flash("error", "OTP has expired. Please register again.");
-            return res.redirect('/register');
-        }
-
-        if (otp !== req.session.otp) {
-            console.warn('[verify-otp] invalid otp submitted');
-            req.flash("error", "Invalid OTP. Please try again.");
-            return res.redirect('/verify-otp');
-        }
-
-        const { username, email, firstName, lastName, password } = req.session.pendingUser;
-
         const newUser = new User({ username, email, firstName, lastName, isVerified: true });
         const registeredUser = await User.register(newUser, password);
-        console.log(`[verify-otp] user registered: ${registeredUser.username} <${registeredUser.email}>`);
-
-        delete req.session.pendingUser;
-        delete req.session.otp;
-        delete req.session.otpExpiry;
+        console.log(`[register] user registered: ${registeredUser.username} <${registeredUser.email}>`);
 
         req.login(registeredUser, (err) => {
             if (err) return next(err);
@@ -97,33 +33,9 @@ export const verifyOTP = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error('[verify-otp] failed:', err);
+        console.error('[register] failed:', err);
         req.flash("error", err.message);
-        res.redirect('/verify-otp');
-    }
-};
-
-export const resendOTP = async (req, res) => {
-    try {
-        if (!req.session.pendingUser) {
-            req.flash("error", "Session expired. Please register again.");
-            return res.redirect('/register');
-        }
-
-        const otp = generateOTP();
-        req.session.otp = otp;
-        req.session.otpExpiry = Date.now() + 10 * 60 * 1000;
-
-        const emailSent = await sendOTPEmail(req.session.pendingUser.email, otp, req.session.pendingUser.firstName);
-        console.log(`[resend-otp] emailSent=${emailSent} for ${req.session.pendingUser.username}`);
-
-        req.flash("success", emailSent ? "New OTP sent successfully!" : "OTP could not be emailed right now. Check server logs for the OTP.");
-        res.redirect('/verify-otp');
-
-    } catch (err) {
-        console.error('[resend-otp] failed:', err);
-        req.flash("error", "Failed to resend OTP. Please try again.");
-        res.redirect('/verify-otp');
+        res.redirect('/register');
     }
 };
 

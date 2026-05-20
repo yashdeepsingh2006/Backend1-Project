@@ -50,9 +50,4 @@
     transform: translateY(0);
 }
 
-.otp-input {
-    letter-spacing: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-align: center;
-}
+/* OTP inputs removed - verification flow disabled */

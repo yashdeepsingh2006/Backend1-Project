@@ -2,9 +2,6 @@ import express from 'express';
 import {
     getRegisterForm,
     registerUser,
-    getOTPForm,
-    verifyOTP,
-    resendOTP,
     getLoginForm,
     loginUser,
     logoutUser,
@@ -21,9 +18,6 @@ const router = express.Router();
 
 router.get('/register', wrapAsync(getRegisterForm));
 router.post('/register', validateUser, wrapAsync(registerUser));
-router.get('/verify-otp', wrapAsync(getOTPForm));
-router.post('/verify-otp', wrapAsync(verifyOTP));
-router.get('/resend-otp', wrapAsync(resendOTP));
 router.get('/login', wrapAsync(getLoginForm));
 router.post('/login', passport.authenticate('local', {
     failureRedirect: '/login',
