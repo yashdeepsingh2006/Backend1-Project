@@ -1,23 +1,8 @@
-import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 dotenv.config();
 
-// Configure SendGrid if API key provided
-if (process.env.SENDGRID_API_KEY) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-}
-
-const gmailTransporter = process.env.GMAIL_USER && process.env.GMAIL_PASS ? nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    },
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 10_000,
-}) : null;
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const buildHtml = (firstName, otp) => `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem; border: 1px solid #ebebeb; border-radius: 12px;">
@@ -33,32 +18,21 @@ const buildHtml = (firstName, otp) => `
 `;
 
 export const sendOTPEmail = async (email, otp, firstName) => {
-    // Prefer SendGrid (HTTPS API) when API key is available — more reliable on PaaS
-    if (process.env.SENDGRID_API_KEY) {
-        try {
-            const msg = {
-                to: email,
-                from: process.env.SENDGRID_FROM || process.env.GMAIL_USER || 'noreply@hotspot.example',
-                subject: 'Verify your Hotspot account',
-                html: buildHtml(firstName, otp),
-            };
-            await sgMail.send(msg);
-            return true;
-        } catch (err) {
-            console.error(`[OTP] SendGrid failed for ${email}:`, err);
-            console.warn(`[OTP] Fallback OTP for ${email}: ${otp}`);
-            // fall through to try Gmail transporter if configured
-        }
+    if (!resend) {
+        console.warn(`[OTP] Resend not configured. OTP for ${email}: ${otp}`);
+        return false;
     }
 
-    if (!gmailTransporter) {
-        console.warn(`[OTP] SMTP not configured. OTP for ${email}: ${otp}`);
+    const from = process.env.RESEND_FROM;
+
+    if (!from) {
+        console.warn(`[OTP] RESEND_FROM not configured. OTP for ${email}: ${otp}`);
         return false;
     }
 
     try {
-        await gmailTransporter.sendMail({
-            from: `"Hotspot" <${process.env.GMAIL_USER}>`,
+        await resend.emails.send({
+            from,
             to: email,
             subject: 'Verify your Hotspot account',
             html: buildHtml(firstName, otp),
@@ -66,7 +40,7 @@ export const sendOTPEmail = async (email, otp, firstName) => {
 
         return true;
     } catch (error) {
-        console.error(`[OTP] Failed to send OTP email to ${email}:`, error);
+        console.error(`[OTP] Failed to send OTP email to ${email} via Resend:`, error);
         console.warn(`[OTP] Fallback OTP for ${email}: ${otp}`);
         return false;
     }
