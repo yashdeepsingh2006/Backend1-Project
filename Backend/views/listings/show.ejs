@@ -290,7 +290,9 @@
             </div>
 
             <!-- Owner Actions -->
-            <% if(currentUser && showListing.owner && showListing.owner.equals(currentUser._id)) { %>
+            <% const isListingOwner = currentUser && showListing.owner && showListing.owner._id && showListing.owner._id.toString() === currentUser._id.toString(); %>
+
+            <% if(isListingOwner) { %>
                 <div class="owner-actions">
                     <h5 class="w-100 fw-bold mb-3">Host Dashboard</h5>
                     <a href="/listing/<%= showListing._id %>/edit" class="action-btn">Edit Listing</a>
@@ -318,7 +320,7 @@
             <div class="about-section" id="reviews" style="border: none;">
                 <h4 class="fw-bold mb-4"><i class="fa-solid fa-star" style="color: #222;"></i> 4.9 · <%= showListing.reviews ? showListing.reviews.length : 0 %> reviews</h4>
                 
-                <% if(currentUser) { %>
+                <% if(currentUser && !isListingOwner) { %>
                     <div class="review-form-card p-4 rounded-4 border mb-4" style="background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
                         <h5 class="fw-bold mb-3">Leave a Review</h5>
                         <form action="/listing/<%= showListing._id %>/reviews" method="POST" class="needs-validation" novalidate>
@@ -347,6 +349,11 @@
                             </div>
                             <button class="btn btn-dark rounded-3 px-4 py-2 fw-bold" style="background: #222;">Submit Review</button>
                         </form>
+                    </div>
+                <% } else if(isListingOwner) { %>
+                    <div class="review-form-card p-4 rounded-4 border mb-4" style="background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
+                        <h5 class="fw-bold mb-2">Your listing</h5>
+                        <p class="text-muted mb-0">You cannot review your own listing.</p>
                     </div>
                 <% } %>
 
@@ -400,7 +407,10 @@
                     ₹<%= showListing.price.toLocaleString("en-IN") %> <span>night</span>
                 </div>
                 
-                <% if(showListing.isAvailable && showListing.isPublished) { %>
+                <% if(isListingOwner) { %>
+                    <button class="booking-btn disabled-btn" disabled>Your Listing</button>
+                    <div class="text-center mt-3 text-muted" style="font-size: 0.85rem;">You cannot book your own listing.</div>
+                <% } else if(showListing.isAvailable && showListing.isPublished) { %>
                     <a href="/booking/<%= showListing._id %>/bookings/new" class="booking-btn">Reserve</a>
                     <div class="text-center mt-3 text-muted" style="font-size: 0.85rem;">You won't be charged yet</div>
                 <% } else { %>
